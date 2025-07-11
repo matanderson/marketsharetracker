@@ -3082,7 +3082,61 @@ function saveProjections() {
 }
 
 function sortTable(column) {
-    console.log('sortTable - implementation needed for column:', column);
+    const table = document.getElementById('rankingTable');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    // Get current sort direction from table header
+    const headers = table.querySelectorAll('th');
+    const currentHeader = headers[column];
+    let isAscending = !currentHeader.classList.contains('sorted-asc');
+    
+    // Clear all sort indicators
+    headers.forEach(header => {
+        header.classList.remove('sorted-asc', 'sorted-desc');
+    });
+    
+    // Set current sort indicator
+    currentHeader.classList.add(isAscending ? 'sorted-asc' : 'sorted-desc');
+    
+    // Sort rows based on column type
+    rows.sort((a, b) => {
+        const aValue = a.cells[column].textContent.trim();
+        const bValue = b.cells[column].textContent.trim();
+        
+        let comparison = 0;
+        
+        // Handle different column types
+        switch(column) {
+            case 0: // Rank
+            case 4: // Total YTD Units
+            case 5: // Albums
+            case 6: // Streams
+            case 8: // Volatility
+                // Numeric comparison
+                const aNum = parseFloat(aValue.replace(/[^0-9.-]/g, '')) || 0;
+                const bNum = parseFloat(bValue.replace(/[^0-9.-]/g, '')) || 0;
+                comparison = aNum - bNum;
+                break;
+            case 2: // Market Share %
+            case 7: // Growth Rate
+                // Percentage comparison
+                const aPercent = parseFloat(aValue.replace('%', '')) || 0;
+                const bPercent = parseFloat(bValue.replace('%', '')) || 0;
+                comparison = aPercent - bPercent;
+                break;
+            case 1: // Label (text)
+            default:
+                // Text comparison
+                comparison = aValue.localeCompare(bValue);
+                break;
+        }
+        
+        return isAscending ? comparison : -comparison;
+    });
+    
+    // Re-append sorted rows to tbody
+    rows.forEach(row => tbody.appendChild(row));
 }
 
 // ==========================================
@@ -4576,37 +4630,7 @@ function initializeChartsWeekIntegration() {
     }
 }
 
-// Update the main updateChartsTab function to include week integration
-function updateChartsTab() {
-    console.log('🎵 Updating charts tab...');
-    
-    // Initialize week integration
-    initializeChartsWeekIntegration();
-    
-    if (!songsData.length && !albumsData.length) {
-        if (CHARTS_GOOGLE_APPS_SCRIPT_URL && !CHARTS_GOOGLE_APPS_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
-            fetchChartsDataFromGoogleDrive()
-                .then(() => {
-                    console.log(`✅ Loaded ${songsData.length} songs and ${albumsData.length} albums from Google Drive`);
-                    renderCurrentChartsView();
-                    updateChartInsights();
-                })
-                .catch(error => {
-                    console.error('❌ Failed to load from Google Drive:', error);
-                    initializeSampleChartsData();
-                    renderCurrentChartsView();
-                    updateChartInsights();
-                });
-        } else {
-            initializeSampleChartsData();
-            renderCurrentChartsView();
-            updateChartInsights();
-        }
-    } else {
-        renderCurrentChartsView();
-        updateChartInsights();
-    }
-}
+// Duplicate updateChartsTab function removed - keeping main implementation with force refresh capability
 	
 	
 	// Simple direct update function
@@ -4634,91 +4658,10 @@ window.updateAllInsights = function() {
 };
 	
 	// ==========================================
-// CHARTS VIEW SWITCHING
+// CHARTS VIEW SWITCHING (Duplicate removed - keeping main implementation)
 // ==========================================
 
-let currentChartsView = 'summary';
-
-function switchChartsView(viewName, element) {
-    console.log('Switching to charts view:', viewName);
-    currentChartsView = viewName;
-    
-    // Update active nav button
-    document.querySelectorAll('.charts-nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    if (element) {
-        element.classList.add('active');
-    }
-    
-    // Hide all chart views
-    document.querySelectorAll('.chart-view').forEach(view => {
-        view.classList.remove('active');
-    });
-    
-    // Show selected view
-    const selectedView = document.getElementById(viewName === 'summary' ? 'chartSummaryView' : viewName + 'ChartView');
-    if (selectedView) {
-        selectedView.classList.add('active');
-    }
-    
-    // Update content based on view
-    switch(viewName) {
-        case 'summary':
-            updateAnalyticsCards();
-            updateSummaryText();
-            break;
-        case 'songs':
-            renderSongsChart();
-            break;
-        case 'albums':
-            renderAlbumsChart();
-            break;
-    }
-}
-
-// Update the main updateChartsTab function
-function updateChartsTab() {
-    console.log('🎵 Updating charts tab...');
-    
-    if (!songsData.length && !albumsData.length) {
-        if (CHARTS_GOOGLE_APPS_SCRIPT_URL && !CHARTS_GOOGLE_APPS_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
-            fetchChartsDataFromGoogleDrive()
-                .then(() => {
-                    console.log(`✅ Loaded ${songsData.length} songs and ${albumsData.length} albums from Google Drive`);
-                    renderCurrentChartsView();
-                })
-                .catch(error => {
-                    console.error('❌ Failed to load from Google Drive, using sample data:', error);
-                    initializeSampleChartsData();
-                    renderCurrentChartsView();
-                });
-        } else {
-            initializeSampleChartsData();
-            renderCurrentChartsView();
-        }
-    } else {
-        renderCurrentChartsView();
-    }
-}
-
-function renderCurrentChartsView() {
-    switch(currentChartsView) {
-        case 'summary':
-            updateAnalyticsCards();
-            updateSummaryText();
-            break;
-        case 'songs':
-            renderSongsChart();
-            break;
-        case 'albums':
-            renderAlbumsChart();
-            break;
-        default:
-            updateAnalyticsCards();
-            updateSummaryText();
-    }
-}
+// Note: currentChartsView already declared globally above, removing duplicate declaration
 	
 	
 	
@@ -5455,38 +5398,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 2000);
 });
 
-// Also force update when charts tab becomes active
-function updateChartsTab() {
-    console.log('🎵 Updating charts tab...');
-    
-    // Always try to update insights, even with no data
-    updateChartInsights();
-    
-    if (!songsData.length && !albumsData.length) {
-        if (CHARTS_GOOGLE_APPS_SCRIPT_URL && !CHARTS_GOOGLE_APPS_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
-            fetchChartsDataFromGoogleDrive()
-                .then(() => {
-                    console.log(`✅ Loaded ${songsData.length} songs and ${albumsData.length} albums from Google Drive`);
-                    renderCurrentChartsView();
-                    // Force insights update after data loads
-                    setTimeout(() => updateChartInsights(), 500);
-                })
-                .catch(error => {
-                    console.error('❌ Failed to load from Google Drive:', error);
-                    initializeSampleChartsData();
-                    renderCurrentChartsView();
-                    setTimeout(() => updateChartInsights(), 500);
-                });
-        } else {
-            initializeSampleChartsData();
-            renderCurrentChartsView();
-            setTimeout(() => updateChartInsights(), 500);
-        }
-    } else {
-        renderCurrentChartsView();
-        setTimeout(() => updateChartInsights(), 300);
-    }
-}
+// Duplicate updateChartsTab function removed - keeping main implementation with force refresh capability
 
 
 
