@@ -1,0 +1,106 @@
+{
+  "name": "market-share-dashboard",
+  "version": "2.0.0",
+  "description": "A modern, modular music industry analytics dashboard with real-time market share tracking",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve . --live",
+    "lint": "npx eslint js/*.js",
+    "format": "npx prettier --write '**/*.{js,html,css,md}'",
+    "validate": "npx w3c-validator index.html",
+    "serve": "python -m http.server 8000",
+    "serve-php": "php -S localhost:8000"
+  },
+  "keywords": [
+    "music",
+    "analytics",
+    "dashboard",
+    "market-share",
+    "charts",
+    "christian-music",
+    "data-visualization",
+    "javascript",
+    "modular-architecture"
+  ],
+  "author": "Music Industry Analytics Team",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^2.8.0",
+    "serve": "^14.0.0"
+  },
+  "dependencies": {},
+  "browserslist": [
+    "Chrome >= 61",
+    "Firefox >= 60",
+    "Safari >= 11",
+    "Edge >= 16"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/market-share-dashboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/market-share-dashboard/issues"
+  },
+  "homepage": "https://github.com/your-org/market-share-dashboard#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "architecture": {
+    "pattern": "Modular ES6",
+    "modules": {
+      "config": "Configuration and constants management",
+      "utils": "Utility functions and helpers",
+      "state": "Centralized state management",
+      "cache": "Smart caching with expiration",
+      "dataService": "API communication and data processing",
+      "uiManager": "DOM manipulation and UI operations",
+      "dashboard": "Main application controller"
+    }
+  },
+  "features": [
+    "Real-time market share tracking",
+    "Smart caching with auto-refresh",
+    "Mobile-responsive design",
+    "Background data loading",
+    "Offline fallback support",
+    "Chart.js integration",
+    "Spotify API integration",
+    "Progressive enhancement",
+    "ES6 module architecture"
+  ],
+  "externalDependencies": {
+    "Chart.js": "4.4.0",
+    "PapaParse": "5.4.1",
+    "jsPDF": "2.5.1",
+    "html2canvas": "1.4.1"
+  },
+  "apis": {
+    "googleAppsScript": {
+      "purpose": "Market share data source",
+      "configLocation": "js/config.js"
+    },
+    "spotifyApi": {
+      "purpose": "Album artwork integration",
+      "configLocation": "js/config.js"
+    }
+  },
+  "caching": {
+    "strategy": "Smart expiration-based caching",
+    "keys": [
+      "marketShareData",
+      "chartsDataCache",
+      "weekContexts",
+      "futureProjections"
+    ],
+    "expiration": "Monday refresh or 7 days"
+  },
+  "performance": {
+    "loadStrategy": "Progressive enhancement",
+    "cacheStrategy": "Background refresh",
+    "updateFrequency": "30 minutes"
+  }
+}

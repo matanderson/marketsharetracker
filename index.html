@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Share Tracker</title>
+    
+    <!-- External Dependencies -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://use.typekit.net/gbr7ncz.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Chart.js Font Configuration -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart !== 'undefined') {
+                Chart.defaults.font.family = "'pragmatica-extended', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+            }
+        });
+    </script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Market Share Tracker</h1>
+            <p>Real-time Christian Music Industry Analytics</p>
+            <div id="dataStatus">Loading...</div>
+        </div>
+
+        <!-- Control Section -->
+        <div class="control-section">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="weekDropdown">Week:</label>
+                    <select id="weekDropdown">
+                        <option>Loading weeks...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="refreshButton" class="button">
+                        🔄 Refresh Data
+                    </button>
+                    
+                    <button id="clearCacheButton" class="button secondary">
+                        🗑️ Clear Cache
+                    </button>
+                </div>
+
+                <div class="control-group">
+                    <span id="lastUpdateTime">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Tab Dropdown -->
+        <div class="mobile-tab-dropdown">
+            <select class="mobile-tab-select" onchange="switchTabMobile(this.value)">
+                <option value="overview">📊 Overview</option>
+                <option value="analytics">📈 Analytics</option>
+                <option value="performance">🏆 Performance</option>
+                <option value="comparison">⚖️ Comparison</option>
+                <option value="charts">🎵 Charts</option>
+                <option value="export">📤 Export</option>
+            </select>
+        </div>
+
+        <!-- Desktop Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="overview">📊 Overview</button>
+            <button class="tab" data-tab="analytics">📈 Analytics</button>
+            <button class="tab" data-tab="performance">🏆 Performance</button>
+            <button class="tab" data-tab="comparison">⚖️ Comparison</button>
+            <button class="tab" data-tab="charts">🎵 Charts</button>
+            <button class="tab" data-tab="export">📤 Export</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="overview-tab" class="tab-content active">
+            <div class="weekly-summary">
+                <h2>Weekly Summary</h2>
+                <div id="weeklySummaryText">Loading weekly summary...</div>
+            </div>
+
+            <div id="totalMarketCard" class="metric-card">
+                <h3>Total Market Overview</h3>
+                <p>Loading market data...</p>
+            </div>
+
+            <div id="metricsGrid" class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Loading...</div>
+                    <div class="metric-value">--</div>
+                    <div class="metric-change">--</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Market Share Distribution</div>
+                    <div class="chart-wrapper">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Week-over-Week Changes</div>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container full-width">
+                    <div class="chart-title">Volume Changes Over Time</div>
+                    <div class="chart-wrapper tall">
+                        <canvas id="streamChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="analytics-tab" class="tab-content">
+            <h2>Advanced Analytics</h2>
+            <p>Analytics features will be implemented here using the modular architecture.</p>
+        </div>
+
+        <div id="performance-tab" class="tab-content">
+            <h2>Performance Metrics</h2>
+            <p>Performance tracking features will be implemented here.</p>
+        </div>
+
+        <div id="comparison-tab" class="tab-content">
+            <h2>Label Comparison</h2>
+            <p>Comparison tools will be implemented here.</p>
+        </div>
+
+        <div id="charts-tab" class="tab-content">
+            <h2>Music Charts</h2>
+            <p>Charts integration will be implemented here.</p>
+        </div>
+
+        <div id="export-tab" class="tab-content">
+            <h2>Export & Reports</h2>
+            <p>Export functionality will be implemented here.</p>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav">
+        <button class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <div class="mobile-drawer-overlay"></div>
+    <div class="mobile-drawer">
+        <div class="drawer-header">
+            <h3>Navigation</h3>
+            <button onclick="closeMobileDrawer()" class="close-drawer">×</button>
+        </div>
+        
+        <nav class="drawer-nav">
+            <button class="drawer-nav-item active" onclick="switchTabDrawer('overview', this)">
+                📊 Overview
+            </button>
+            <button class="drawer-nav-item" onclick="switchTabDrawer('analytics', this)">
+                📈 Analytics
+            </button>
+            <button class="drawer-nav-item" onclick="switchTabDrawer('performance', this)">
+                🏆 Performance
+            </button>
+            <button class="drawer-nav-item" onclick="switchTabDrawer('comparison', this)">
+                ⚖️ Comparison
+            </button>
+            <button class="drawer-nav-item" onclick="switchTabDrawer('charts', this)">
+                🎵 Charts
+            </button>
+            <button class="drawer-nav-item" onclick="switchTabDrawer('export', this)">
+                📤 Export
+            </button>
+        </nav>
+
+        <div class="drawer-controls">
+            <select id="drawerWeekDropdown">
+                <option>Loading weeks...</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div id="progressOverlay" class="progress-overlay">
+        <div class="progress-content">
+            <div class="progress-spinner"></div>
+            <div class="progress-message">Loading...</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+    <script type="module">
+        // Import the main dashboard controller
+        import { dashboard } from './js/dashboard.js';
+        import { uiManager } from './js/uiManager.js';
+        import { cacheManager } from './js/cache.js';
+        
+        // Make some functions globally available for onclick handlers
+        window.switchTabMobile = (value) => uiManager.switchTabMobile(value);
+        window.toggleMobileDrawer = () => uiManager.toggleMobileDrawer();
+        window.closeMobileDrawer = () => uiManager.closeMobileDrawer();
+        window.switchTabDrawer = (tabName, element) => uiManager.switchTabDrawer(tabName, element);
+        
+        // Clear cache button handler
+        document.getElementById('clearCacheButton')?.addEventListener('click', () => {
+            cacheManager.clearAllCaches();
+            location.reload();
+        });
+        
+        // The dashboard will auto-initialize via the module
+        console.log('✅ Market Share Dashboard loaded with modular architecture');
+    </script>
+</body>
+</html>
